@@ -7,3 +7,7 @@ pkill -f python
 
 fuser -k 8080/tcp
 
+Download any:
+Download your script
+
+In Cloud Shell, type dl final_chat.py (or use the download menu).
