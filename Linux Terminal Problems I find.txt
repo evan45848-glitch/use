@@ -19,3 +19,26 @@ rm *.csv
 ls *.csv
 use the -i flag. It will ask you for confirmation for every single file:
 rm -i *.csv
+
+  
+To see what tools we have already in the pc:
+- apt list --installed | less
+
+New 41 usefull good ones:
+##sudo apt install "Here put anything you wnna install"
+1. ncdu  - Directory size and naviation cool gui related something with kind of gui filesystem delete and stuff it's cool!
+2. duf - Pretter version of df -h to see files how much space they got.
+3. ripgrep - command is (sudo rg -c "ERROR"). grep is the classic tool for searching for text inside files.
+4. mosh
+5. lshw - List everything about the hardware. (sudo lshw -short)
+5.1. btop - SOC cyberpunk!! Ui and data
+6. mtr google.com - packet loss and in and out to a site
+7. fd    - find but better
+sudo apt install fd-find
+alias fd=fdfind
+fd -e py
+(The -e stands for extension)
+fd -H config
+Hidden files
+
+8. 
