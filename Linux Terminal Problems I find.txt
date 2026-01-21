@@ -42,3 +42,10 @@ fd -H config
 Hidden files
 
 8. 
+9. Ranger - gui file manager cool
+10. zoxide - cd but better 
+eval "$(zoxide init bash)"
+then (z nahid)
+11. zi - needs fzf install UI to go to other directory
+12. exa - better of ls (exa --icons)
+13. glances - All in one stats
