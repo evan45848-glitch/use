@@ -1,0 +1,106 @@
+git config --global user.name "username"
+git config --global user.mail "yourmal@gmail.com"
+
+
+gh auth login
+
+
+
+# 1. Initialize Git in this folder
+git init
+
+# 2. Rename the branch to 'main' (Best practice)
+git branch -M main
+
+# 3. Connect to your specific repository link
+git remote add origin https://github.com/NotNahid/django-inventory.git
+
+# 4. Add all files to the "Staging Area"
+git add .
+
+# 5. Save the snapshot (Commit)
+git commit -m "Initial commit: Django Inventory System with Cart and Descriptions"
+
+# 6. Upload to GitHub (Push)
+git push -u origin main
+
+
+
+git remote set-url origin https://github.com/NotNahid/django-inventory.git
+git push -u origin main
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Since you already created the repository link (`https://github.com/NotNahid/django-inventory`), here is the exact sequence to connect your Cloud Shell code to that link and upload it.
+
+### **Step 1: Tell Git Who You Are (Configuration)**
+
+Run these two commands so GitHub knows it's you.
+*(Replace the email with your actual GitHub email)*
+
+```bash
+git config --global user.name "NotNahid"
+git config --global user.email "YOUR_REAL_EMAIL@gmail.com"
+
+```
+
+### **Step 2: Login to GitHub (Authentication)**
+
+Since you are in Cloud Shell, you need to authorize your terminal to push code.
+Run this command and **follow the on-screen instructions** (select GitHub.com -> SSH -> Upload Key -> Login with Browser).
+
+```bash
+gh auth login
+
+```
+
+### **Step 3: Connect and Push**
+
+Now, run this block to initialize git, save your files, link them to your repo, and upload.
+
+```bash
+# 1. Initialize Git in this folder
+git init
+
+# 2. Rename the branch to 'main' (Best practice)
+git branch -M main
+
+# 3. Connect to your specific repository link
+git remote add origin https://github.com/NotNahid/django-inventory.git
+
+# 4. Add all files to the "Staging Area"
+git add .
+
+# 5. Save the snapshot (Commit)
+git commit -m "Initial commit: Django Inventory System with Cart and Descriptions"
+
+# 6. Upload to GitHub (Push)
+git push -u origin main
+
+```
+
+**Common Error Note:**
+If it says `fatal: remote origin already exists`, it means you already linked it earlier. Just run this command to force the new link, then push again:
+
+```bash
+git remote set-url origin https://github.com/NotNahid/django-inventory.git
+git push -u origin main
+
+```
+
+Let me know if you see the "100%" progress bar!
