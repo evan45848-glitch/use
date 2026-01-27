@@ -1,3 +1,8 @@
+readlink -f InstrumentSerif-Regular.ttf  
+
+readlink -f InstrumentSerif-Regular.ttf
+
+
 how do i check servers on anyport and stop all the server on linux terminal
 >  ss -tulpn
 
