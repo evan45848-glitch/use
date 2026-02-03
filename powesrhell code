@@ -1,0 +1,146 @@
+Sure — I’ll break it down **clearly and properly, step by step** 👇
+
+Your command:
+
+```powershell
+irm https://dub.sh/nahid | iex
+```
+
+This has **three main parts**:
+
+---
+
+# 🔹 Part 1 — `irm`
+
+`irm` = **Invoke-RestMethod**
+
+Full form:
+
+```powershell
+Invoke-RestMethod
+```
+
+👉 What it does:
+
+It **downloads (fetches) the content of a URL** and prints it as text in PowerShell.
+
+So this part:
+
+```powershell
+irm https://dub.sh/nahid
+```
+
+means:
+
+> “Go to this link and get whatever text/script is there.”
+
+If you ran ONLY this:
+
+```powershell
+irm https://dub.sh/nahid
+```
+
+You would just see the script printed on your screen.
+
+---
+
+# 🔹 Part 2 — The Pipe `|`
+
+The pipe (`|`) means:
+
+> “Take the output from the left side and send it to the right side.”
+
+So:
+
+```powershell
+irm https://dub.sh/nahid | iex
+```
+
+Means:
+
+> Take whatever comes from the website and pass it to `iex`.
+
+---
+
+# 🔹 Part 3 — `iex`
+
+`iex` = **Invoke-Expression**
+
+Full form:
+
+```powershell
+Invoke-Expression
+```
+
+👉 What it does:
+
+It **executes whatever text it receives as PowerShell code**.
+
+So when you do:
+
+```powershell
+irm https://dub.sh/nahid | iex
+```
+
+You are basically saying:
+
+> “Download a script from this URL and immediately run it.”
+
+---
+
+# ✅ Put together — Plain English meaning
+
+This command means:
+
+> Download the script from `https://dub.sh/nahid` and run it directly in PowerShell.
+
+It is equivalent to:
+
+1. Download script
+2. Then manually run it
+
+But both are done in **one line automatically**.
+
+---
+
+# ⚠️ Important Security Note (very important to understand)
+
+This pattern:
+
+```powershell
+irm <url> | iex
+```
+
+is **very dangerous** if you don’t trust the URL.
+
+Why?
+
+Because:
+
+* You are **blindly executing code from the internet**
+* That code can:
+
+  * Delete files
+  * Steal data
+  * Install malware
+  * Take control of your system
+
+💡 **Safer alternative (recommended when learning):**
+
+First check what you are about to run:
+
+```powershell
+irm https://dub.sh/nahid
+```
+
+If the script looks safe, **then** run it manually.
+
+---
+
+# If you want, I can:
+
+* Explain what **that specific script** does line-by-line
+* Convert this same idea into **Linux (bash) explanation**
+* Or show you a **safer version** of running remote scripts
+
+Just tell me 👍
