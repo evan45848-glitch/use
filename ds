@@ -1,0 +1,32 @@
+# ==============================
+# 🔹 FULL WINRM NO-PASSWORD SETUP (TARGET PC)
+# ==============================
+
+# 1️⃣ Enable WinRM (if not already enabled)
+Enable-PSRemoting -Force
+
+# 2️⃣ Make sure WinRM service is running
+Set-Service -Name WinRM -StartupType Automatic
+Start-Service WinRM
+
+# 3️⃣ Allow basic authentication
+Set-Item WSMan:\localhost\Service\Auth\Basic -Value $true
+
+# 4️⃣ Allow unencrypted traffic (needed for blank passwords)
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value $true
+
+# 5️⃣ Allow blank passwords in Windows security policy
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" `
+-Name "limitblankpassworduse" -Value 0
+
+# 6️⃣ Restart WinRM to apply changes
+Restart-Service WinRM
+
+# 7️⃣ Add user to Remote Management group
+Add-LocalGroupMember -Group "Remote Management Users" -Member "work station" -ErrorAction SilentlyContinue
+Add-LocalGroupMember -Group "Remote Management Users" -Member "desktop-c4nru4a\work station" -ErrorAction SilentlyContinue
+
+# 8️⃣ Confirm listener exists
+winrm enumerate winrm/config/listener
+
+Write-Host "✅ TARGET PC IS READY FOR NO-PASSWORD REMOTING!" -ForegroundColor Green
