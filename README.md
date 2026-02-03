@@ -1,6 +1,6 @@
 # 📌 Windows Utility
 http://christitus.com/windows-utility-improved/
-
+irm christitus.com/win | iex
 
 # 📌 Public Useful Resources & Notes
 
