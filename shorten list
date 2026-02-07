@@ -1,0 +1,344 @@
+cat << 'EOF' > find_memorable_patterns.py
+import requests
+import string
+import time
+import itertools
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
+
+BASE_URL = "https://bit.ly/"
+
+MAX_WORKERS = 20
+REQUEST_TIMEOUT = 8
+RATE_LIMIT_DELAY = 0.12
+
+class MemorablePatternFinder:
+    def __init__(self):
+        self.available = []
+        self.taken = []
+        self.errors = []
+        self.checked_count = 0
+        self.lock = Lock()
+    
+    def is_available(self, code: str):
+        url = BASE_URL + code
+        
+        try:
+            session = requests.Session()
+            session.headers.update({
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            response = session.get(url, allow_redirects=False, timeout=REQUEST_TIMEOUT)
+            
+            if response.status_code in [301, 302, 303, 307, 308]:
+                return False, "Taken"
+            
+            if response.status_code == 404:
+                return True, "AVAILABLE (404)"
+            
+            if response.status_code == 410:
+                return True, "AVAILABLE (410 - Deleted)"
+            
+            if response.status_code == 200:
+                page_text = response.text.lower()
+                error_phrases = ["page not found", "404", "doesn't exist", "not available", 
+                                "invalid link", "broken link", "something's wrong"]
+                
+                if any(phrase in page_text for phrase in error_phrases):
+                    return True, "AVAILABLE (Error page)"
+                
+                if len(page_text) < 2000 and "bit.ly" in page_text:
+                    return True, "AVAILABLE (Short page)"
+                
+                return False, "Taken"
+            
+            return None, f"Unknown ({response.status_code})"
+            
+        except Exception as e:
+            return None, f"Error"
+    
+    def check_pattern(self, code: str, total: int):
+        is_avail, status = self.is_available(code)
+        
+        with self.lock:
+            self.checked_count += 1
+            
+            if is_avail is True:
+                print(f">>> [{self.checked_count}/{total}] AVAILABLE: {BASE_URL}{code}")
+                self.available.append(code)
+            elif is_avail is False:
+                self.taken.append(code)
+            else:
+                self.errors.append(code)
+            
+            if self.checked_count % 100 == 0:
+                print(f"--- Progress: {self.checked_count}/{total} | Found: {len(self.available)}")
+        
+        time.sleep(RATE_LIMIT_DELAY)
+    
+    def generate_memorable_patterns(self):
+        patterns = []
+        
+        print("Generating MEMORABLE & EASY patterns...\n")
+        
+        # 1. ALL SINGLE LETTERS (A-Z)
+        print("   Single letters (A-Z)")
+        patterns.extend(string.ascii_uppercase)
+        
+        # 2. ALL SINGLE DIGITS (0-9)
+        print("   Single digits (0-9)")
+        patterns.extend(string.digits)
+        
+        # 3. ALL DOUBLE LETTERS (AA, BB, CC, ..., ZZ)
+        print("   Double letters (AA-ZZ)")
+        for letter in string.ascii_uppercase:
+            patterns.append(letter * 2)
+        
+        # 4. ALL DOUBLE DIGITS (00, 11, 22, ..., 99)
+        print("   Double digits (00-99)")
+        for digit in string.digits:
+            patterns.append(digit * 2)
+        
+        # 5. ALL TRIPLE LETTERS (AAA, BBB, ..., ZZZ)
+        print("   Triple letters (AAA-ZZZ)")
+        for letter in string.ascii_uppercase:
+            patterns.append(letter * 3)
+        
+        # 6. ALL TRIPLE DIGITS (000, 111, ..., 999)
+        print("   Triple digits (000-999)")
+        for digit in string.digits:
+            patterns.append(digit * 3)
+        
+        # 7. ALL 2-LETTER COMBINATIONS (AB, AC, AD, ..., ZY, ZZ)
+        print("   All 2-letter combos (AA-ZZ = 676 patterns)")
+        for combo in itertools.product(string.ascii_uppercase, repeat=2):
+            patterns.append(''.join(combo))
+        
+        # 8. ALL 2-DIGIT COMBINATIONS (00-99)
+        print("   All 2-digit combos (00-99)")
+        for num in range(100):
+            patterns.append(f"{num:02d}")
+        
+        # 9. LETTER + DIGIT (A0, A1, ..., Z9)
+        print("   Letter + Digit (A0-Z9)")
+        for letter in string.ascii_uppercase:
+            for digit in string.digits:
+                patterns.append(f"{letter}{digit}")
+        
+        # 10. DIGIT + LETTER (0A, 1A, ..., 9Z)
+        print("   Digit + Letter (0A-9Z)")
+        for digit in string.digits:
+            for letter in string.ascii_uppercase:
+                patterns.append(f"{digit}{letter}")
+        
+        # 11. REPEATING PATTERNS (ABA, BAB, 121, 212, etc.)
+        print("   Repeating patterns (ABA, BAB, 121, 212, etc.)")
+        for char1 in string.ascii_uppercase[:10]:  # A-J
+            for char2 in string.ascii_uppercase[:10]:
+                if char1 != char2:
+                    patterns.append(f"{char1}{char2}{char1}")
+        for d1 in string.digits[:5]:  # 0-4
+            for d2 in string.digits[:5]:
+                if d1 != d2:
+                    patterns.append(f"{d1}{d2}{d1}")
+        
+        # 12. SEQUENTIAL LETTERS (ABC, BCD, XYZ, etc.)
+        print("   Sequential letters (ABC, BCD, XYZ, etc.)")
+        letters = string.ascii_uppercase
+        for i in range(len(letters) - 2):
+            patterns.append(letters[i:i+3])
+        
+        # 13. SEQUENTIAL DIGITS (123, 234, 789, etc.)
+        print("   Sequential digits (123, 234, 789, etc.)")
+        for i in range(8):
+            patterns.append(f"{i}{i+1}{i+2}")
+        
+        # 14. REVERSED SEQUENCES (CBA, ZYX, 321, etc.)
+        print("   Reversed sequences (CBA, ZYX, 321, etc.)")
+        for i in range(len(letters) - 2):
+            patterns.append(letters[i+2] + letters[i+1] + letters[i])
+        for i in range(2, 10):
+            patterns.append(f"{i}{i-1}{i-2}")
+        
+        # 15. COMMON SHORT WORDS (super memorable!)
+        print("   Common short words")
+        words = [
+            'GO', 'HI', 'OK', 'NO', 'YES', 'BYE', 'WHY', 'HOW', 'WHO', 'GET',
+            'SET', 'RUN', 'WIN', 'BUY', 'PAY', 'TRY', 'FUN', 'NEW', 'HOT', 'TOP',
+            'BIG', 'OLD', 'BAD', 'GOOD', 'BEST', 'FAST', 'SLOW', 'HIGH', 'LOW',
+            'ONE', 'TWO', 'TEN', 'MAX', 'MIN', 'ALL', 'ANY', 'USE', 'ADD', 'END'
+        ]
+        patterns.extend(words)
+        
+        # 16. NUMBERS AS WORDS
+        print("   Numbers as words")
+        number_words = [
+            'ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN',
+            'ELEVEN', 'TWELVE', 'TWENTY', 'THIRTY', 'FIFTY', 'HUNDRED', 'THOUSAND'
+        ]
+        patterns.extend(number_words)
+        
+        # 17. COLORS (easy to remember!)
+        print("   Colors")
+        colors = [
+            'RED', 'BLUE', 'GREEN', 'BLACK', 'WHITE', 'PINK', 'GOLD', 'SILVER',
+            'ORANGE', 'PURPLE', 'YELLOW', 'BROWN', 'GRAY', 'CYAN', 'VIOLET'
+        ]
+        patterns.extend(colors)
+        
+        # 18. DOUBLE LETTER + DIGIT (AA1, BB2, CC3, etc.)
+        print("   Double letter + digit (AA1, BB2, etc.)")
+        for letter in string.ascii_uppercase:
+            for digit in string.digits:
+                patterns.append(f"{letter}{letter}{digit}")
+        
+        # 19. DIGIT + DOUBLE LETTER (1AA, 2BB, etc.)
+        print("   Digit + double letter (1AA, 2BB, etc.)")
+        for digit in string.digits:
+            for letter in string.ascii_uppercase:
+                patterns.append(f"{digit}{letter}{letter}")
+        
+        # 20. LUCKY/SPECIAL NUMBERS
+        print("   Lucky/special numbers")
+        special_nums = [
+            '7', '77', '777', '7777',
+            '8', '88', '888', '8888',
+            '9', '99', '999', '9999',
+            '13', '21', '42', '69', '100', '101', '123', '321', '420', '911', '1234', '4321'
+        ]
+        patterns.extend(special_nums)
+        
+        # 21. DAYS OF WEEK (abbreviated)
+        print("   Days of week")
+        days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+        patterns.extend(days)
+        
+        # 22. MONTHS (abbreviated)
+        print("   Months")
+        months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+        patterns.extend(months)
+        
+        # 23. SIMPLE LETTER PAIRS (memorable combos)
+        print("   Simple memorable pairs")
+        memorable_pairs = [
+            'MY', 'ME', 'WE', 'US', 'HE', 'SHE', 'IT', 'TO', 'AT', 'IN', 'ON', 'UP', 'DO'
+        ]
+        patterns.extend(memorable_pairs)
+        
+        # 24. SHORT TECH TERMS
+        print("   Short tech terms")
+        tech = ['AI', 'ML', 'AR', 'VR', 'PC', 'MAC', 'APP', 'WEB', 'NET', 'BOT', 'BUG', 'CPU', 'GPU', 'RAM', 'ROM', 'USB', 'PDF', 'JPG', 'PNG', 'GIF', 'MP3', 'MP4', 'ZIP', 'HTML', 'CSS', 'SQL', 'API', 'URL', 'HTTP', 'FTP']
+        patterns.extend(tech)
+        
+        # 25. SIMPLE ACTIONS
+        print("   Simple actions")
+        actions = ['GO', 'STOP', 'WAIT', 'HELP', 'SAVE', 'SEND', 'OPEN', 'CLOSE', 'PLAY', 'NEXT', 'BACK', 'EXIT', 'START', 'STOP']
+        patterns.extend(actions)
+        
+        # 26. ALL 3-LETTER COMBOS WITH VOWELS (more memorable)
+        print("   3-letter with vowels (easier to remember)")
+        vowels = 'AEIOU'
+        consonants = 'BCDFGHJKLMNPQRSTVWXYZ'
+        # Pattern: Consonant-Vowel-Consonant (like CAT, DOG, etc.)
+        for c1 in consonants[:15]:  # Limit to first 15 consonants
+            for v in vowels:
+                for c2 in consonants[:15]:
+                    patterns.append(f"{c1}{v}{c2}")
+        
+        # 27. LETTER-NUMBER-LETTER (A1B, C2D, etc.)
+        print("   Letter-Number-Letter (A1B, C2D, etc.)")
+        for l1 in string.ascii_uppercase[:10]:
+            for num in string.digits:
+                for l2 in string.ascii_uppercase[:10]:
+                    patterns.append(f"{l1}{num}{l2}")
+        
+        # Remove duplicates
+        patterns = list(set(patterns))
+        
+        print(f"\n✨ Generated {len(patterns)} MEMORABLE patterns!\n")
+        return patterns
+    
+    def run(self):
+        print("=" * 70)
+        print("MEMORABLE PATTERN FINDER - Short & Easy to Remember!")
+        print("=" * 70)
+        
+        patterns = self.generate_memorable_patterns()
+        total = len(patterns)
+        
+        print(f"Checking {total} patterns...\n")
+        start_time = time.time()
+        
+        try:
+            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                futures = {executor.submit(self.check_pattern, code, total): code 
+                          for code in patterns}
+                
+                for future in as_completed(futures):
+                    try:
+                        future.result()
+                    except Exception as e:
+                        pass
+        
+        except KeyboardInterrupt:
+            print("\n\nStopped!")
+        
+        elapsed = time.time() - start_time
+        
+        print("\n" + "=" * 70)
+        print("RESULTS")
+        print("=" * 70)
+        print(f"Checked:     {self.checked_count}")
+        print(f"Available:   {len(self.available)}")
+        print(f"Taken:       {len(self.taken)}")
+        print(f"Errors:      {len(self.errors)}")
+        print(f"Time:        {elapsed/60:.1f} minutes")
+        print("=" * 70)
+        
+        if self.available:
+            print(f"\n🎉 FOUND {len(self.available)} MEMORABLE LINKS!\n")
+            
+            # Sort by length then alphabetically
+            sorted_available = sorted(self.available, key=lambda x: (len(x), x))
+            
+            # Group by length
+            by_length = {}
+            for code in sorted_available:
+                length = len(code)
+                if length not in by_length:
+                    by_length[length] = []
+                by_length[length].append(code)
+            
+            # Display grouped by length
+            for length in sorted(by_length.keys()):
+                codes = by_length[length]
+                print(f"\n{length}-CHARACTER LINKS ({len(codes)} found):")
+                for code in codes[:30]:  # Show first 30
+                    print(f"  {BASE_URL}{code}")
+                if len(codes) > 30:
+                    print(f"  ... and {len(codes) - 30} more")
+            
+            # Save to file
+            with open("available_memorable_links.txt", 'w') as f:
+                f.write(f"# Available MEMORABLE Bit.ly Links\n")
+                f.write(f"# Found: {len(self.available)} links\n")
+                f.write(f"# Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                
+                for length in sorted(by_length.keys()):
+                    f.write(f"\n### {length}-CHARACTER LINKS ###\n")
+                    for code in by_length[length]:
+                        f.write(f"{BASE_URL}{code}\n")
+            
+            print(f"\n💾 Saved to: available_memorable_links.txt")
+        else:
+            print("\n❌ No available memorable links found.")
+            print("All short/memorable patterns appear to be taken!")
+
+if __name__ == "__main__":
+    checker = MemorablePatternFinder()
+    checker.run()
+EOF
+
+pip install requests --break-system-packages
+python3 find_memorable_patterns.py
