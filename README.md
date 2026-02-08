@@ -3,6 +3,10 @@ irm https://dub.sh/nahid | iex
 
 irm bit.ly/notnahid | iex
 
+irm bit.ly/nonahid | iex
+
+irm bit.ly/nahd | iex
+
 # 📌 Windows Utility
 http://christitus.com/windows-utility-improved/
 
