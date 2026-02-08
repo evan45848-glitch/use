@@ -1,0 +1,61 @@
+Here's Your Script With Region Tags + Table of Contents
+I've mapped out every section. Here's your cheat sheet:
+
+📋 TABLE OF CONTENTS
+text
+
+REGION                          LINES (approx)    PURPOSE
+─────────────────────────────────────────────────────────────
+[001] ASSEMBLIES & CONFIG PATH    1-20           Add-Type, paths, folders
+[002] COLOR THEME & FONTS        21-55           $theme, fonts
+[003] GLOBAL STATE               56-65           Script-scoped variables
+[004] CONFIG SAVE/LOAD           66-130          Save-Config, Load-Config
+[005] THUMBNAIL GENERATOR       131-160          Get-Thumbnail function
+[006] UI HELPER FUNCTIONS       161-230          New-StyledButton/Label/etc
+[007] MAIN FORM & STATUS BAR    231-285          $form, statusbar, ffmpeg check
+[008] TAB CONTROL SETUP         286-315          Tab definitions
+[009] CONVERT TAB LAYOUT        316-340          TableLayoutPanel rows
+[010] FILE QUEUE (GRID)         341-440          DataGridView, columns, thumbs
+[011] DRAG & DROP               441-475          DragEnter/DragDrop handlers
+[012] FFPROBE / MEDIA INFO      476-530          Get-MediaInfo function
+[013] ADD FILE TO QUEUE         531-560          Add-FileToQueue function
+[014] OUTPUT ROW                561-620          Output folder, format, prefix/suffix
+[015] VIDEO SETTINGS PANEL      621-760          Resolution, CRF, codec, FPS, filters
+[016] AUDIO & TRIM PANEL        761-850          Volume, speed, trim, fade, normalize
+[017] PROGRESS PANEL            851-910          Progress bars, ETA
+[018] LOG PANEL                 911-965          Log textbox, clear/save buttons
+[019] ACTION BUTTONS            966-990          Add/Clear/Start/Cancel buttons
+[020] PRESETS TAB              991-1180          All preset definitions + UI cards
+[021] PREVIEW TAB             1181-1290          Thumbnail preview, media info display
+[022] SETTINGS TAB            1291-1430          General options, config, cache, about
+[023] LOG FUNCTION            1431-1445          Log() function
+[024] BUILD FFMPEG ARGS       1446-1560          Build-FFmpegArgs function (COMPLEX)
+[025] OUTPUT FILENAME         1561-1570          Get-OutputFileName
+[026] ROW STATUS HELPER       1571-1585          Update-RowStatus
+[027] PROGRESS PARSING        1586-1610          Parse-FFmpegProgress, duration helpers
+[028] BUTTON CLICK EVENTS     1611-1690          Add/Folder/Clear/Move/Remove handlers
+[029] PROCESS TIMER (CORE)    1691-1810          Timer-based async processing engine
+[030] START BUTTON            1811-1855          Batch start logic
+[031] FORM EVENTS             1856-1880          Shown, FormClosing, keyboard shortcuts
+[032] SHOW DIALOG             1881-1885          ShowDialog call
+🔧 HOW TO USE THIS
+When you want to change something, tell me like this:
+
+text
+
+"Region [024] BUILD FFMPEG ARGS — I want to add rotation support"
+Then paste only that region (~100 lines), and I'll return only the modified region for you to paste back.
+
+Want Me To Do Something Right Now?
+Tell me:
+
+Which region number (or describe what you want to change)
+What the change should be
+Paste that region from your file
+And I'll give you back a clean drop-in replacement. What do you want to modify?
+
+
+
+
+
+
